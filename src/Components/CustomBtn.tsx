@@ -16,7 +16,7 @@ const theme = {
     active?: boolean;
   }
   
-  const Button = styled.button`
+  const Button = styled.button<Props>`
     background: transparent;
     border: none;
     margin: 1.4em .6em;

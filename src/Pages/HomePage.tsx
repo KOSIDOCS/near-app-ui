@@ -9,8 +9,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
 
 const schema = yup.object({
-  firstName: yup.string().required(),
-  age: yup.number().positive().integer().required(),
+    Email: yup.string().required(),
+  Phone: yup.number().positive().integer().required(),
 }).required();
 
 const HomePage: React.FC = () => {
@@ -19,11 +19,31 @@ const types = ["Email", "Phone"];
 
 const [presentForm, setPresentForm ] = useState<string>("");
 
-const { register, handleSubmit, formState:{ errors } } = useForm({
+const [ isValue, setIsValue ] = useState<string>("");
+
+const {
+    register,
+    getFieldState,
+    handleSubmit,
+    formState: { isDirty, isValid }
+  } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      firstName: ""
+    },
     resolver: yupResolver(schema)
   });
-  const onSubmit = data => console.log(data);
 
+  // you can invoke before render or within the render function
+  const fieldState = getFieldState("firstName");
+
+// const { register, handleSubmit, formState:{ errors } } = useForm({
+//     resolver: yupResolver(schema)
+//   });
+
+  const onSubmit = data => console.log(data);
+  
+  // custom toggle button
   function ToggleGroup({ callack }: any) {
 
     const [active, setActive] = useState(types[0]);
@@ -35,7 +55,7 @@ const { register, handleSubmit, formState:{ errors } } = useForm({
     return (
       <div>
         {types.map((type) => (
-          <ButtonToggle key={type} active={active === type} onClick={() => handleClick(type)}>
+          <ButtonToggle type="button" key={type} active={active === type} onClick={() => handleClick(type)}>
               {type}
           </ButtonToggle>
         ))}
@@ -48,15 +68,16 @@ const { register, handleSubmit, formState:{ errors } } = useForm({
         <Row>
           <MainNavbar isLogo/>
         </Row>
+        <form onSubmit={handleSubmit(onSubmit)}>
         <div style={{ margin: "0 auto", padding: "0px 32px"}}>
         <Row>
         <ToggleGroup callack={(type: string) => setPresentForm(type)} />
         </Row>
         <Row>
-        {presentForm === "Phone" ? <InputMain {...register("Phone")} type="email" placeholder="Ex (337) 378 8383" /> : <InputMain {...register("Email")} type="email" placeholder="johndoe@gmail.com"/>}
+        {presentForm === "Phone" ? <InputMain {...register("Phone")} type="email" placeholder="Ex (337) 378 8383" onChange={(val) => console.log(val)} /> : <InputMain {...register("Email")} type="email" placeholder="johndoe@gmail.com"/>}
         </Row>
         <Row>
-            <ButtonContinue active={false}>Continue <i className="bi bi-chevron-right"></i></ButtonContinue>
+            <ButtonContinue type="submit" active={getFieldState("Phone").isValid || getFieldState("Email").isValid}>Continue <i className="bi bi-chevron-right"></i></ButtonContinue>
         </Row>
         <Row>
             <div>
@@ -72,6 +93,7 @@ const { register, handleSubmit, formState:{ errors } } = useForm({
             <ButtonLogin>Log in with NEAR <i className="bi bi-chevron-right" /></ButtonLogin>
         </Row>
         </div>
+        </form>
       </Container>
     );
   };
